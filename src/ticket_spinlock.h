@@ -40,7 +40,9 @@ static bool ticket_spinlock_trylock(ticket_spinlock_t *lock) {
     uint16_t now_serving = atomic_load_explicit(&lock->now_serving, memory_order_relaxed);
     if (ticket != now_serving) return false;
 
-    return atomic_compare_exchange_strong(&lock->ticket, &ticket, ticket + 1);
+    uint16_t next_ticket = ticket + 1;
+
+    return atomic_compare_exchange_strong(&lock->ticket, &ticket, next_ticket);
 }
 
 static bool ticket_spinlock_is_locked(ticket_spinlock_t *lock) {
